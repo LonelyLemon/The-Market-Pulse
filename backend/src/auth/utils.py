@@ -11,7 +11,7 @@ def create_access_token(data: dict) -> str:
         "exp": expire,
         "type": "access",
     })
-    jwt_token_encoded = jwt.encode(to_encode, settings.SECRET_KEY, settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    jwt_token_encoded = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.SECURITY_ALGORITHM)
     return jwt_token_encoded
 
 

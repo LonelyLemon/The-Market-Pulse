@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
 from src.core.config import settings
 from src.core.constants import DB_NAMING_CONVENTION
 
-DATABASE_URL = str(settings.DATABASE_URL)
+DATABASE_URL = str(settings.ASYNC_DATABASE_URI)
 
 engine = create_async_engine(
     DATABASE_URL,
