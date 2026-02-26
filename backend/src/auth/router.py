@@ -194,7 +194,7 @@ async def get_user_info(current_user: User = Depends(get_current_user)):
 #----------------------
 #     UPDATE USER
 #----------------------
-@auth_route.put('/update-user')
+@auth_route.patch('/me')
 async def update_user_info(payload: UserUpdate,
                            db: SessionDep,
                            current_user: User = Depends(get_current_user)

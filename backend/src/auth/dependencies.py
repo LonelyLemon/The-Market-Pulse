@@ -33,3 +33,15 @@ async def get_current_user(db: SessionDep,
         raise UserNotFound()
     
     return user
+
+
+async def get_user_from_token(token: str, db) -> User | None:
+    """Validate a raw JWT token and return the user. Used for WebSocket auth."""
+    payload = decode_token(token)
+    if not payload or payload.get("type") != "access":
+        return None
+    email = payload.get("sub")
+    if not email:
+        return None
+    result = await db.execute(select(User).where(User.email == email))
+    return result.scalar_one_or_none()

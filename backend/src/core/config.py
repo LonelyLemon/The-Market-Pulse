@@ -41,6 +41,10 @@ class Settings(CustomBaseSettings):
     MAIL_HOST: str
     MAIL_FROM_NAME: str
 
+    # AI / LLM
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-4o-mini"
+
     @computed_field
     @property
     def ASYNC_DATABASE_URI(self) -> PostgresDsn:

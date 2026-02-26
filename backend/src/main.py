@@ -18,12 +18,39 @@ async def lifespan(app: FastAPI):
     logger.info("Application startup")
     yield
 
+# ── OpenAPI tags for docs grouping ──
+tags_metadata = [
+    {"name": "auth", "description": "Authentication & user management"},
+    {"name": "posts", "description": "Blog posts CRUD"},
+    {"name": "categories", "description": "Blog categories"},
+    {"name": "comments", "description": "Post comments"},
+    {"name": "social", "description": "Likes & shares"},
+    {"name": "market", "description": "Market data & charts"},
+    {"name": "chat", "description": "AI chatbot (PulseAI)"},
+]
+
 app = FastAPI(
     title="MarketPulse",
     description="The Market Pulse API Documentation",
     version="1.0",
     lifespan=lifespan,
+    openapi_tags=tags_metadata,
 )
+
+
+# ── Security Headers Middleware ──
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    # Prevent caching on API responses
+    if request.url.path.startswith("/api/") or request.url.path.startswith("/auth/"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    return response
 
 
 app.add_middleware(
@@ -41,6 +68,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         status_code=400,
         content={"msg": exc.errors()[0]["msg"]},
     )
+
+# ── Health Check ──
+@app.get("/health", include_in_schema=False)
+async def health_check():
+    return {"status": "ok", "version": "1.0"}
 
 app.include_router(api_router)
 app.include_router(auth_route)
